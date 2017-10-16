@@ -1,11 +1,24 @@
 import os.path as Path
 import sys
+from collections import OrderedDict, namedtuple
 
 from url_shortener import storage
 
 get_connection = lambda: storage.connect('shortener.sqlite')
 
+Action = namedtuple('Action', ['func', 'name'])
+actions = OrderedDict()
 
+
+def menu_action(cmd, name):
+    def decorator(func):
+        actions[cmd] = Action(func=func, name=name)
+        return func
+
+    return decorator
+
+
+@menu_action('1', 'Добавить URL-адрес')
 def action_add():
     """добавит url-адрес"""
     url = input('\nВведите URL-адрес: ')
@@ -18,6 +31,7 @@ def action_add():
     print('Короткий адрес: {}'.format(short_url))
 
 
+@menu_action('2', 'Найти оригинальный url-адрес')
 def action_find():
     """Найти оригинальный url-адрес"""
     short_url = input('\nВведите короткий URL-адрес: ')
@@ -32,6 +46,7 @@ def action_find():
             print('Короткий URL-адрес "{}" не существует'.format(short_url))
 
 
+@menu_action('3', 'Вывести все url-адреса')
 def action_find_all():
     """вывести все url-адреса"""
     with get_connection() as conn:
@@ -43,16 +58,16 @@ def action_find_all():
         print(template.format(row=row))
 
 
+@menu_action('m', 'Показать меню"')
 def action_show_menu():
     """показать меню"""
-    print("""
-1. Добавить URL-адрес
-2. Найти оригинальный URL-адрес
-3. Найти все URL-адрес
-m. Показать меню
-q. Выйти""")
+    menu = []
+    for cmd, action in actions.items():
+        menu.append('{}. {}'.format(cmd, action.name))
+    print('\n'.join(menu))
 
 
+@menu_action('q', 'Выйти из программы')
 def action_exit():
     """выйти из программы"""
     sys.exit(0)  # от тысячи и выше
@@ -66,13 +81,6 @@ def main():
     with get_connection() as conn:
         storage.initialize(conn, creation_schema)
 
-    actions = {
-        '1': action_add,
-        '2': action_find,
-        '3': action_find_all,
-        'm': action_show_menu,
-        'q': action_exit
-    }
 
     action_show_menu()
 
@@ -80,6 +88,6 @@ def main():
         cmd = input('\nВведите команду:')
         action = actions.get(cmd)
         if action:
-            action()
+            action.func()
         else:
             print('Неизвестная команда')
