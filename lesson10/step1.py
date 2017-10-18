@@ -1,5 +1,6 @@
 # Декораторы
-
+# gc.disable()
+# gc.enable()
 
 def tst(*args, **kwargs):
     print(type(args))
@@ -66,4 +67,4 @@ def benchmark(func, *args, **kwargs):
     return result
 
 
-print('Факториал 500 = ', benchmark(factorial, 500))
+print('Факториал 500 = ', benchmark(factorial, 5000))
