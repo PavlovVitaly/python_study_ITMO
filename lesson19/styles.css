@@ -1,0 +1,11 @@
+.gallery {
+    border: 1px solid #333;
+    background: #eee;
+    border-radius: 5px;
+}
+
+.gallery p {
+    font: 1.2em Verdana, Arial, sans-serif;
+    margin: 1em 0;
+    padding: 0.5em;
+}
