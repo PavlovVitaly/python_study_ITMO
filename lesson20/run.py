@@ -1,0 +1,1 @@
+from lesson20.shop import appapp.run(debug=True)
